@@ -6,17 +6,18 @@ import { useFocusEffect } from '@react-navigation/native';
 import SyncStorage from 'sync-storage';
 import { ScrollView } from 'react-native-gesture-handler';
 import { formataData } from './Services'
+import DatePicker from 'react-native-date-picker'
 
 export default function Vendas({ navigation }) {
 
     const [vendas, setVendas] = useState()
+    const [date, setDate] = useState(new Date())
 
     useFocusEffect(
         React.useCallback(() => {
             fetch(`http://bdpapiserver-com.umbler.net/notas/limite/${10}/${0}/${SyncStorage.get("token")}`).then((result) => {
                 return result.json()
             }).then((result) => {
-                console.log(result.notas[0])
                 setVendas(result.notas[0])
             })
             return () => {
@@ -25,13 +26,21 @@ export default function Vendas({ navigation }) {
         }, [])
     );
 
+    const detalheVenda = async (id) => {
+        const result = await fetch(`http://bdpapiserver-com.umbler.net/notas/${id}/${SyncStorage.get("token")}`);
+        const json = await result.json();
+        if (json.success) {
+            navigation.navigate("DetalheVenda", { cliente: json.notas.cliente, total: json.notas.total, id: id })
+        }
+    }
+
     return (
-        <SafeAreaView>
+        <SafeAreaView style={{ backgroundColor: "#fff", height: "100%" }}>
             <Menu titulo="Venda" toggleDrawer={() => navigation.toggleDrawer()} />
-            <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'center' ,zIndex:4}}>
                 <View style={{ width: "85%", backgroundColor: 'rgba(0,121,255,0.075)', flexDirection: 'row', flexWrap: 'wrap', padding: 15, marginTop: 25, borderRadius: 5, alignItems: "center" }}>
                     <View style={{ width: "37%", flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: "center" }}>
-                        <Text style={{ fontFamily: "Ubuntu-Medium", color: "#0079FF" }}>Data Inicial</Text>
+                        <Text style={{ fontFamily: "Ubuntu-Medium", color: "#0079FF" }}>Data Inicial </Text>
                         <Text style={{ marginLeft: 8 }}>
                             <Svg
                                 width={11}
@@ -47,6 +56,8 @@ export default function Vendas({ navigation }) {
                             </Svg>
                         </Text>
                     </View>
+
+
                     <View style={{ width: "26%", alignItems: "center" }}>
                         <Text style={{ backgroundColor: "#fff", padding: 7, borderRadius: 5 }}>
                             <Svg
@@ -114,7 +125,7 @@ export default function Vendas({ navigation }) {
 
                                     </View>
                                     <View style={{ flexDirection: "row", flexWrap: "wrap", width: "30%", justifyContent: "flex-end" }}>
-                                        <Text style={{ marginRight: 7 }}>
+                                        <Text style={{ marginRight: 7 }} onPress={() => detalheVenda(item.id)}>
                                             <Svg
                                                 width={21}
                                                 height={16}

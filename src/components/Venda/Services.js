@@ -6,7 +6,6 @@ export const formataData = (data) => {
     const mes = data.slice(5,7)
     const dia = data.slice(8,10)
     const novaData = dia + '/' + mes + '/' + ano
-    console.log(novaData)
     return novaData;
 }
 

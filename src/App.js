@@ -7,6 +7,7 @@ import Login from './components/Login/Login';
 import LogadoNavigation from './components/AppNavigation/LogadoNavigation'
 import NomeClienteVenda from './components/Venda/NomeClienteVenda';
 import CarrinhoVenda from './components/Venda/CarrinhoVenda';
+import DetalheVenda from './components/Venda/DetalheVenda.js';
 
 const Stack = createStackNavigator();
 
@@ -18,6 +19,7 @@ export default function App() {
         <Stack.Screen name="LogadoNavigation" component={LogadoNavigation} />
         <Stack.Screen name="NomeClienteVenda" component={NomeClienteVenda} />
         <Stack.Screen name="CarrinhoVenda" component={CarrinhoVenda} />
+        <Stack.Screen name="DetalheVenda" component={DetalheVenda} />
       </Stack.Navigator>
     </NavigationContainer>
   )
