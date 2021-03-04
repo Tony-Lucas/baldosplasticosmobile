@@ -10,7 +10,7 @@ export default function Login({ navigation }) {
         const formData = new FormData();
         formData.append('usuario', usuario)
         formData.append('senha', senha)
-        const result = await fetch("http://bdpapiserver-com.umbler.net/login", {
+        const result = await fetch("https://baldosplasticosapi.herokuapp.com/login", {
             method: "post",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ usuario: usuario, senha: senha })

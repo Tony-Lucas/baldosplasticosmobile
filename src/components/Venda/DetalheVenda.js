@@ -12,11 +12,11 @@ export default function DetalheVenda({ navigation, route }) {
 
     useFocusEffect(
         React.useCallback(() => {
-            fetch(`http://bdpapiserver-com.umbler.net/vendas/${route.params.id}/${SyncStorage.get("token")}`).then((result) => {
+            fetch(`https://baldosplasticosapi.herokuapp.com/vendas/${route.params.id}/${SyncStorage.get("token")}`).then((result) => {
                 return result.json()
             }).then((resultVenda) => {
                 for (let i = 0; i < resultVenda.vendas.length; i++) {
-                    fetch(`http://bdpapiserver-com.umbler.net/mercadoria/${resultVenda.vendas[i].id_mercadoria}/${SyncStorage.get("token")}`).then((resultMercadoria) => {
+                    fetch(`https://baldosplasticosapi.herokuapp.com/mercadoria/${resultVenda.vendas[i].id_mercadoria}/${SyncStorage.get("token")}`).then((resultMercadoria) => {
                         return resultMercadoria.json()
                     }).then((resultMercadoria) => {
                         const venda = {

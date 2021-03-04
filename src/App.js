@@ -8,6 +8,9 @@ import LogadoNavigation from './components/AppNavigation/LogadoNavigation'
 import NomeClienteVenda from './components/Venda/NomeClienteVenda';
 import CarrinhoVenda from './components/Venda/CarrinhoVenda';
 import DetalheVenda from './components/Venda/DetalheVenda.js';
+import VendaData from './components/Venda/VendaData';
+import InformacoesMercadoria from './components/Venda/components/InfomacoesMercadoria'
+import FinalizarVenda from './components/Venda/FinalizarVenda';
 
 const Stack = createStackNavigator();
 
@@ -20,6 +23,9 @@ export default function App() {
         <Stack.Screen name="NomeClienteVenda" component={NomeClienteVenda} />
         <Stack.Screen name="CarrinhoVenda" component={CarrinhoVenda} />
         <Stack.Screen name="DetalheVenda" component={DetalheVenda} />
+        <Stack.Screen name="VendaData" component={VendaData} />
+        <Stack.Screen name="InformacoesMercadoria" component={InformacoesMercadoria} />
+        <Stack.Screen name="FinalizarVenda" component={FinalizarVenda} />
       </Stack.Navigator>
     </NavigationContainer>
   )

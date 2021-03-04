@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Text, View, StyleSheet, SafeAreaView } from 'react-native'
 import Menu from '../Header/Menu';
 import Svg, { G, Circle, Path } from "react-native-svg"
@@ -8,9 +8,14 @@ import SyncStorage from 'sync-storage';
 
 export default function Resumo({ navigation }) {
 
+    const [lucro,setLucro] = useState(0)
+    const [total,setTotal] = useState()
+    const [periodo,setPeriodo] = useState()
+
     useFocusEffect(
         React.useCallback(() => {
-            getLucro("Hoje", SyncStorage.get("token"))
+            
+        
             return () => {
 
             };
@@ -27,8 +32,8 @@ export default function Resumo({ navigation }) {
                 }}>
                     <View style={{ flexDirection: "column", padding: 27, width: "50%" }}>
                         <Text style={{ fontFamily: "Ubuntu-Bold", color: "#001E40", fontSize: 15 }}>Lucro</Text>
-                        <Text style={{ marginTop: 10, fontFamily: "Ubuntu-Bold", fontSize: 19, color: "#0079FF" }}>R$ 1755,30</Text>
-                        
+                        <Text style={{ marginTop: 10, fontFamily: "Ubuntu-Bold", fontSize: 19, color: "#0079FF" }}>{lucro}</Text>
+
                     </View>
 
                     <View style={{ flexDirection: "column", padding: 27, width: "50%" }}>

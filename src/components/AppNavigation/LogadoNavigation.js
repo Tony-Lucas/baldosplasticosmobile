@@ -22,7 +22,7 @@ export default function LogadoNavigation({navigation}) {
         navigation.navigate("Login")
     }
 
-    if (token._W != null) {
+    if (token != null) {
         return (
             
                 <Drawer.Navigator drawerContent={props => {

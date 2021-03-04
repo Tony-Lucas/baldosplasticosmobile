@@ -11,7 +11,7 @@ export const formataData = (data) => {
 
 export const procuraMercadoria = async (nome) => {
     if(nome.length > 2){
-        const result = await fetch(`http://bdpapiserver-com.umbler.net/mercadoria/busca/${nome}/${SyncStorage.get("token")}`)
+        const result = await fetch(`https://baldosplasticosapi.herokuapp.com/mercadoria/busca/${nome}/${SyncStorage.get("token")}`)
         const json = await result.json()
         console.log(json)
     }
