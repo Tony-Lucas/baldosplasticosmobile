@@ -11,6 +11,8 @@ import DetalheVenda from './components/Venda/DetalheVenda.js';
 import VendaData from './components/Venda/VendaData';
 import InformacoesMercadoria from './components/Venda/components/InfomacoesMercadoria'
 import FinalizarVenda from './components/Venda/FinalizarVenda';
+import NovaMercadoria from './components/Mercadoria/NovaMercadoria';
+import DetalheMercadoria from './components/Mercadoria/DetalheMercadoria';
 
 const Stack = createStackNavigator();
 
@@ -26,6 +28,8 @@ export default function App() {
         <Stack.Screen name="VendaData" component={VendaData} />
         <Stack.Screen name="InformacoesMercadoria" component={InformacoesMercadoria} />
         <Stack.Screen name="FinalizarVenda" component={FinalizarVenda} />
+        <Stack.Screen name="NovaMercadoria" component={NovaMercadoria} />
+        <Stack.Screen name="DetalheMercadoria" component={DetalheMercadoria} />
       </Stack.Navigator>
     </NavigationContainer>
   )

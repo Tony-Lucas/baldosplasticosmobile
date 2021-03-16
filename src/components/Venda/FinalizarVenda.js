@@ -14,30 +14,29 @@ export default function FinalizarVenda({ navigation, route }) {
     const [subtotal, setSubtotal] = useState(route.params.subtotal)
     const [showConfirma, setShowConfirma] = useState(false)
 
-    const finalizaNota = () => {
+    const finalizaNota = async () => {
 
-        fetch(`http://bdpapiserver.com/notas`, {
+        fetch(`https://baldosplasticosapi.herokuapp.com/notas`, {
             method: 'post',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ total: subtotal, cliente: route.params.cliente, desconto: String(descontoV), formaPagamento: String(formaPagamentoV), token: SyncStorage.get("token") })
         }).then(resultNota => {
             return resultNota.json();
-        }).then(resultNota => {
+        }).then(async(resultNota) => {
             for (let i = 0; i < route.params.carrinho.length; i++) {
-                fetch(`https://baldosplasticosapi.herokuapp.com/mercadoria/${route.params.carrinho[i].id}/${SyncStorage.get("token")}`).then(result => {
-                    return result.json()
-                }).then(result => {
-                    fetch(`https://baldosplasticosapi.herokuapp.com/vendas`, {
-                        method: "POST",
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ id_mercadoria: result.mercadoria.id, quantidade: route.params.carrinho[i].quantidade, notaId: resultNota.nota.id, desconto: route.params.carrinho[i].desconto, token: SyncStorage.get("token") })
-                    })
+                
+                const resultMercadoria = await fetch(`https://baldosplasticosapi.herokuapp.com/mercadoria/${route.params.carrinho[i].id}/${SyncStorage.get("token")}`)
+                const jsonMercadoria = await resultMercadoria.json()
+                const resultVenda = await fetch(`https://baldosplasticosapi.herokuapp.com/vendas`,{
+                    method:"POST",
+                    headers:{ 'Content-Type': 'application/json'},
+                    body: JSON.stringify({id_mercadoria:jsonMercadoria.mercadoria.id,quantidade:route.params.carrinho[i].quantidade,notaId:resultNota.id,desconto:route.params.carrinho[i].desconto,precoDia:jsonMercadoria.mercadoria.precoVenda,token:SyncStorage.get("token")})
                 })
 
-            }
-        })
 
-        navigation.navigate("Venda")
+            }
+            navigation.navigate("Venda")
+        })
 
     }
 
@@ -125,7 +124,7 @@ export default function FinalizarVenda({ navigation, route }) {
 
             </SafeAreaView>
             {showConfirma && (
-                <ConfirmaAcao finalizaNota={finalizaNota} cancelaAcao={cancelaAcao} />
+                <ConfirmaAcao acaoMethod={finalizaNota} cancelaAcao={cancelaAcao} parametros={{id:null}}/>
             )}
         </React.Fragment >
     )

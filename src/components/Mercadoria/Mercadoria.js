@@ -60,7 +60,7 @@ export default function Resumo({ navigation }) {
                             <Text style={{ paddingLeft: 7, fontFamily: "Ubuntu-Regular", color: "#9B9B9B" }}>Exibindo {mercadorias.length} Resultados</Text>
                         </View>
                         <View style={{ flexDirection: "row", width: "50%", marginTop: 15, justifyContent: "flex-end" }}>
-                            <Text style={{ paddingTop: 7, paddingBottom: 7, paddingLeft: 17, paddingRight: 17, color: "#fff", backgroundColor: "#FFA300", borderRadius: 5 }}>Novo</Text>
+                            <Text style={{ paddingTop: 7, paddingBottom: 7, paddingLeft: 17, paddingRight: 17, color: "#fff", backgroundColor: "#FFA300", borderRadius: 5 }} onPress={() => navigation.navigate("NovaMercadoria")}>Novo</Text>
                         </View>
 
                     </View>
@@ -76,7 +76,7 @@ export default function Resumo({ navigation }) {
                     {mercadorias != undefined && (
                         mercadorias.map(item => {
                             return (
-                                <View style={{ borderBottomWidth: 1, borderBottomColor: "#D8D8D8", borderStyle: "solid", paddingTop: 20, paddingBottom: 20, paddingLeft: 7, flexDirection: "row", flexWrap: "wrap", width: "85%" }}>
+                                <View style={{borderBottomWidth: 1, borderBottomColor: "#D8D8D8", borderStyle: "solid", paddingTop: 20, paddingBottom: 20, paddingLeft: 7, flexDirection: "row", flexWrap: "wrap", width: "85%" }}>
                                     <View style={{ flexDirection: "row", flexWrap: "wrap", width: "100%" }}>
                                         <Text style={{ fontFamily: "Ubuntu-Bold", color: "#9B9B9B", width: "50%", color: "#333333" }}>{item.nome}</Text>
 
@@ -89,6 +89,9 @@ export default function Resumo({ navigation }) {
                                     </View>
                                     <View style={{ flexDirection: "row", flexWrap: "wrap", width: "100%" }}>
                                         <Text style={{ fontFamily: "Ubuntu-Regular", color: "#9B9B9B", width: "50%", marginTop: 10 }}>Preço Venda: {item.precoVenda}</Text>
+                                    </View>
+                                    <View style={{position: "absolute" ,right:0,top:38}}>
+                                        <Text style={{marginRight:20,fontFamily: "Ubuntu-Regular", backgroundColor:"#0079FF",color: "#fff",paddingTop:8,paddingBottom:8,paddingLeft:18,paddingRight:18}} onPress={() => navigation.navigate("DetalheMercadoria",{id:item.id})}>Ver</Text>
                                     </View>
 
                                 </View>
