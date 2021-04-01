@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Text, View, TextInput } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import SyncStorage from 'sync-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage"
 import Svg, { Path } from "react-native-svg"
 import ConfirmaAcao from '../../utils/ConfirmaAcao';
 
@@ -11,17 +11,22 @@ export default function DetalheMercadoria({ navigation, route }) {
     const [precoCompra, setPrecoCompra] = useState()
     const [precoVenda, setPrecoVenda] = useState()
     const [showConfirma, setShowConfirma] = useState(false)
-    const [idMercadoria,setIdMercadoria] = useState(route.params.id)
+    const [idMercadoria, setIdMercadoria] = useState(route.params.id)
 
     useFocusEffect(
         React.useCallback(() => {
-            fetch(`https://baldosplasticosapi.herokuapp.com/mercadoria/${route.params.id}/${SyncStorage.get("token")}`).then((result) => {
-                return result.json()
-            }).then((result) => {
-                setNome(result.mercadoria.nome)
-                setPrecoCompra(result.mercadoria.precoCompra)
-                setPrecoVenda(result.mercadoria.precoVenda)
-            })
+            const getMercadoria = async () => {
+                const token = await AsyncStorage.getItem("token")
+                const result = await fetch(`https://baldosplasticosapi.herokuapp.com/mercadoria/${route.params.id}/${token}`)
+                const json = await result.json();
+
+                setNome(json.mercadoria.nome)
+                setPrecoCompra(json.mercadoria.precoCompra)
+                setPrecoVenda(json.mercadoria.precoVenda)
+
+            }
+
+            getMercadoria()
 
             return () => {
 
@@ -42,6 +47,20 @@ export default function DetalheMercadoria({ navigation, route }) {
         const json = await result.json();
         if (json.success) {
             navigation.navigate("Mercadoria")
+        }
+    }
+
+    const updateMercadoria = async () => {
+        if (nome && precoCompra && precoVenda) {
+            const result = await fetch("https://baldosplasticosapi.herokuapp.com/notas/altera", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "json/application"
+                },
+                body: JSON.stringify({ token: await AsyncStorage.getitem("token"), nome: nome, precoCompra: parseFloat(precoCompra.replace(",", ".")), precoVenda: parseFloat(precoVenda.replace(",", ".")) })
+
+            })
+            const json = await result.json()
         }
     }
 
@@ -68,8 +87,8 @@ export default function DetalheMercadoria({ navigation, route }) {
                     </View>
                     <View style={{ flexDirection: "row", marginTop: 30, flexWrap: "wrap", justifyContent: "space-between", width: "100%" }}>
                         <TextInput style={{ backgroundColor: "white", width: "100%", borderRadius: 5, paddingLeft: 14 }} placeholder="Nome" value={nome} onChangeText={text => setNome(text)} />
-                        <TextInput style={{ backgroundColor: "white", marginTop: 15, width: "48%", borderRadius: 5, paddingLeft: 14 }} placeholder="Preço Compra" value={precoCompra} onChangeText={text => setPrecoCompra(text)} />
-                        <TextInput style={{ backgroundColor: "white", marginTop: 15, width: "48%", borderRadius: 5, paddingLeft: 14 }} placeholder="Preço Venda" value={precoVenda} onChangeText={text => setPrecoVenda(text)} />
+                        <TextInput style={{ backgroundColor: "white", marginTop: 15, width: "48%", borderRadius: 5, paddingLeft: 14 }} placeholder="Preço Compra" value={precoCompra ? precoCompra.toString().replace(".", ",") : precoCompra} onChangeText={text => setPrecoCompra(text)} />
+                        <TextInput style={{ backgroundColor: "white", marginTop: 15, width: "48%", borderRadius: 5, paddingLeft: 14 }} placeholder="Preço Venda" value={precoVenda ? precoVenda.toString().replace(".", ",") : precoVenda} onChangeText={text => setPrecoVenda(text)} />
                     </View>
                     <View style={{ flexDirection: "row", marginTop: 30, flexWrap: "wrap", justifyContent: "flex-end", width: "100%" }}>
                         <Text style={{ backgroundColor: "#FB212F", color: "#fff", width: "25%", textAlign: "center", paddingTop: 8, paddingBottom: 8, borderRadius: 5, marginRight: 20 }} onPress={() => navigation.navigate("Mercadoria")}>Voltar</Text>
@@ -78,7 +97,7 @@ export default function DetalheMercadoria({ navigation, route }) {
                 </View>
             </View>
             {showConfirma && (
-                <ConfirmaAcao mensagem={"Deseja Remover essa Mercadoria ?"} cancelaAcao={cancelaAcao} acaoMethod={deletaMercadoria} parametros={{id:idMercadoria}}/>
+                <ConfirmaAcao mensagem={"Deseja Remover essa Mercadoria ?"} cancelaAcao={cancelaAcao} acaoMethod={deletaMercadoria} parametros={{ id: idMercadoria }} />
             )}
         </React.Fragment>
     )

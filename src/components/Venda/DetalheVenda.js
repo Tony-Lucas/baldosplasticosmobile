@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Text, SafeAreaView, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import SyncStorage from 'sync-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage"
 import { ScrollView } from 'react-native-gesture-handler';
 import RNPrint from 'react-native-print';
 
@@ -13,23 +13,26 @@ export default function DetalheVenda({ navigation, route }) {
 
     useFocusEffect(
         React.useCallback(() => {
-            fetch(`https://baldosplasticosapi.herokuapp.com/vendas/${route.params.id}/${SyncStorage.get("token")}`).then((result) => {
-                return result.json()
-            }).then((resultVenda) => {
-                for (let i = 0; i < resultVenda.vendas.length; i++) {
-                    fetch(`https://baldosplasticosapi.herokuapp.com/mercadoria/${resultVenda.vendas[i].id_mercadoria}/${SyncStorage.get("token")}`).then((resultMercadoria) => {
-                        return resultMercadoria.json()
-                    }).then((resultMercadoria) => {
-                        const venda = {
-                            nome: resultMercadoria.mercadoria.nome,
-                            quantidade: resultVenda.vendas[i].quantidade,
-                            preco: resultMercadoria.mercadoria.precoVenda,
-                            total: (parseInt(resultVenda.vendas[i].quantidade) * parseFloat(resultMercadoria.mercadoria.precoVenda)).toFixed(2).toString().replace(".", ',')
-                        }
-                        setMercadoriaVendida(mercadoriaVendida => [...mercadoriaVendida, venda])
-                    })
-                }
-            })
+            const getNota = async () => {
+                fetch(`https://baldosplasticosapi.herokuapp.com/vendas/${route.params.id}/${await AsyncStorage.getItem("token")}`).then((result) => {
+                    return result.json()
+                }).then(async (resultVenda) => {
+                    for (let i = 0; i < resultVenda.vendas.length; i++) {
+                        fetch(`https://baldosplasticosapi.herokuapp.com/mercadoria/${resultVenda.vendas[i].id_mercadoria}/${await AsyncStorage.getItem("token")}`).then((resultMercadoria) => {
+                            return resultMercadoria.json()
+                        }).then((resultMercadoria) => {
+                            const venda = {
+                                nome: resultMercadoria.mercadoria.nome,
+                                quantidade: resultVenda.vendas[i].quantidade,
+                                preco: resultMercadoria.mercadoria.precoVenda,
+                                total: (parseInt(resultVenda.vendas[i].quantidade) * parseFloat(resultMercadoria.mercadoria.precoVenda)).toFixed(2).toString().replace(".", ',')
+                            }
+                            setMercadoriaVendida(mercadoriaVendida => [...mercadoriaVendida, venda])
+                        })
+                    }
+                })
+            }
+            getNota()
             return () => {
                 setMercadoriaVendida([])
             };
@@ -42,8 +45,8 @@ export default function DetalheVenda({ navigation, route }) {
         const resultVendas = await fetch(`https://baldosplasticosapi.herokuapp.com/vendas/${jsonNotas.notas.id}/${SyncStorage.get("token")}`);
         const jsonVendas = await resultVendas.json();
         let mercadorias = [];
-        for(let i = 0 ; i < jsonVendas.vendas.length ; i++){
-            const result = await fetch (`https://baldosplasticosapi.herokuapp.com/mercadoria/${jsonVendas.vendas[i].id_mercadoria}/${SyncStorage.get("token")}`)
+        for (let i = 0; i < jsonVendas.vendas.length; i++) {
+            const result = await fetch(`https://baldosplasticosapi.herokuapp.com/mercadoria/${jsonVendas.vendas[i].id_mercadoria}/${SyncStorage.get("token")}`)
             const json = await result.json();
             mercadorias.push(json.mercadoria)
         }
@@ -66,28 +69,28 @@ export default function DetalheVenda({ navigation, route }) {
         <thead>
         <tbody>`
         for (let i = 0; i < jsonVendas.vendas.length; i++) {
-            if(parseFloat(jsonVendas.vendas[i].desconto) > 0){
+            if (parseFloat(jsonVendas.vendas[i].desconto) > 0) {
                 const desconto = (parseFloat(mercadorias[i].precoVenda).toFixed(2) - parseFloat(jsonVendas.vendas[i].desconto).toFixed(2)).toFixed(2)
                 const linha = `
                     <tr>
                         <td style="padding: 10px;border: 1px solid black">${mercadorias[i].nome}</td>
-                        <td style="padding: 10px;border: 1px solid black">${mercadorias[i].precoVenda.toString().replace('.',',')}</td>
+                        <td style="padding: 10px;border: 1px solid black">${mercadorias[i].precoVenda.toString().replace('.', ',')}</td>
                         <td style="padding: 10px;border: 1px solid black">${jsonVendas.vendas[i].quantidade}</td>
-                        <td style="padding: 10px;border: 1px solid black">${desconto.toString().replace(".",',')}</td>
-                        <td style="padding: 10px;border: 1px solid black">${((parseFloat(mercadorias[i].precoVenda).toFixed(2) - desconto) * jsonVendas.vendas[i].quantidade).toFixed(2).toString().replace(".",',')}</td>
+                        <td style="padding: 10px;border: 1px solid black">${desconto.toString().replace(".", ',')}</td>
+                        <td style="padding: 10px;border: 1px solid black">${((parseFloat(mercadorias[i].precoVenda).toFixed(2) - desconto) * jsonVendas.vendas[i].quantidade).toFixed(2).toString().replace(".", ',')}</td>
                     </tr>
                 
                 `
                 corpo += linha
-                console.log(corpo)  
-            }else{
+                console.log(corpo)
+            } else {
                 const linha = `
                     <tr>
                         <td style="padding: 10px;border: 1px solid black">${mercadorias[i].nome}</td>
-                        <td style="padding: 10px;border: 1px solid black">${jsonVendas.vendas[i].precoDia.toString().replace('.',',')}</td>
+                        <td style="padding: 10px;border: 1px solid black">${jsonVendas.vendas[i].precoDia.toString().replace('.', ',')}</td>
                         <td style="padding: 10px;border: 1px solid black">${jsonVendas.vendas[i].quantidade}</td>
-                        <td style="padding: 10px;border: 1px solid black">${jsonVendas.vendas[i].desconto.toFixed(2).replace(".",",")}</td>
-                        <td style="padding: 10px;border: 1px solid black">${(parseFloat(mercadorias[i].precoVenda).toFixed(2) * jsonVendas.vendas[i].quantidade).toFixed(2).toString().replace(".",",")}</td>
+                        <td style="padding: 10px;border: 1px solid black">${jsonVendas.vendas[i].desconto.toFixed(2).replace(".", ",")}</td>
+                        <td style="padding: 10px;border: 1px solid black">${(parseFloat(mercadorias[i].precoVenda).toFixed(2) * jsonVendas.vendas[i].quantidade).toFixed(2).toString().replace(".", ",")}</td>
                     </tr>
                 
                 `
@@ -100,7 +103,7 @@ export default function DetalheVenda({ navigation, route }) {
             <h5 style="margin-top:30px;text-align:center">Subtotal: ${parseFloat(jsonNotas.notas.total).toFixed(2).toString().replace(".", ",")}</h5>
             `
         RNPrint.print({
-            html:corpo
+            html: corpo
         })
     }
 
@@ -120,9 +123,9 @@ export default function DetalheVenda({ navigation, route }) {
                 <ScrollView>
                     {mercadoriaVendida != undefined && (
 
-                        mercadoriaVendida.map(item => {
+                        mercadoriaVendida.map((item, index) => {
                             return (
-                                <View style={{ flexDirection: "row", paddingBottom: 10, marginTop: 10, justifyContent: "center" }}>
+                                <View key={index} style={{ flexDirection: "row", paddingBottom: 10, marginTop: 10, justifyContent: "center" }}>
                                     <View style={{ borderBottomColor: "#C4C4C4", borderBottomWidth: 1, width: "85%", paddingBottom: 12, flexDirection: "row", flexWrap: "wrap" }}>
                                         <Text style={{ fontFamily: "Ubuntu-Bold", padding: 5, width: "100%", color: "black" }}>{item.nome}</Text>
                                         <Text style={{ fontFamily: "Ubuntu-Regular", padding: 5, width: "100%" }}>Preço: {item.preco}</Text>
@@ -138,11 +141,11 @@ export default function DetalheVenda({ navigation, route }) {
 
                     )}
                 </ScrollView>
-                
+
             </View>
-            <View style={{ width: "80%", marginTop: 20 ,justifyContent: "flex-end",flexDirection: "row"}}>
-                <Text style={{paddingTop:7,paddingBottom:7,paddingLeft:17,paddingRight:17, color:"#fff",backgroundColor:"#0079FF",borderRadius:5,marginRight:18}} onPress={() => geraPDF(route.params.id)}>PDF</Text>
-                <Text style={{paddingTop:7,paddingBottom:7,paddingLeft:17,paddingRight:17, color:"#fff",backgroundColor:"#FB212F",borderRadius:5}} onPress={() => navigation.navigate("Venda")}>Voltar</Text>
+            <View style={{ width: "80%", marginTop: 20, justifyContent: "flex-end", flexDirection: "row" }}>
+                <Text style={{ paddingTop: 7, paddingBottom: 7, paddingLeft: 17, paddingRight: 17, color: "#fff", backgroundColor: "#0079FF", borderRadius: 5, marginRight: 18 }} onPress={() => geraPDF(route.params.id)}>PDF</Text>
+                <Text style={{ paddingTop: 7, paddingBottom: 7, paddingLeft: 17, paddingRight: 17, color: "#fff", backgroundColor: "#FB212F", borderRadius: 5 }} onPress={() => navigation.navigate("Venda")}>Voltar</Text>
             </View>
         </SafeAreaView >
     )

@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Text, SafeAreaView, View } from 'react-native'
 import Menu from '../Header/Menu';
 import { useFocusEffect } from '@react-navigation/native';
-import SyncStorage from 'sync-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage"
 import Svg, { G, Circle, Path } from "react-native-svg"
 import { ScrollView, TextInput } from 'react-native-gesture-handler';
 export default function Resumo({ navigation }) {
@@ -11,16 +11,19 @@ export default function Resumo({ navigation }) {
     const [limite, setLimite] = useState(15);
     const [pulos, setPulos] = useState(0);
     const [texto, setTexto] = useState();
-    
+
 
     useFocusEffect(
         React.useCallback(() => {
-            fetch(`https://baldosplasticosapi.herokuapp.com/mercadoria/limite/${15}/${0}/${SyncStorage.get("token")}`).then((result) => {
-                return result.json()
-            }).then((result) => {
-                setMercadorias(result.mercadoria[0])
-            })
+            const getMercadorias = async () => {
+                fetch(`https://baldosplasticosapi.herokuapp.com/mercadoria/limite/${15}/${0}/${await AsyncStorage.getItem("token")}`).then((result) => {
+                    return result.json()
+                }).then((result) => {
+                    setMercadorias(result.mercadoria[0])
+                })
+            }
 
+            getMercadorias()
             return () => {
                 setMercadorias([])
                 setLimite(0)
@@ -76,22 +79,22 @@ export default function Resumo({ navigation }) {
                     {mercadorias != undefined && (
                         mercadorias.map(item => {
                             return (
-                                <View style={{borderBottomWidth: 1, borderBottomColor: "#D8D8D8", borderStyle: "solid", paddingTop: 20, paddingBottom: 20, paddingLeft: 7, flexDirection: "row", flexWrap: "wrap", width: "85%" }}>
+                                <View style={{ borderBottomWidth: 1, borderBottomColor: "#D8D8D8", borderStyle: "solid", paddingTop: 20, paddingBottom: 20, paddingLeft: 7, flexDirection: "row", flexWrap: "wrap", width: "85%" }}>
                                     <View style={{ flexDirection: "row", flexWrap: "wrap", width: "100%" }}>
                                         <Text style={{ fontFamily: "Ubuntu-Bold", color: "#9B9B9B", width: "50%", color: "#333333" }}>{item.nome}</Text>
 
                                     </View>
-                                    <View style={{ flexDirection: "row", flexWrap: "wrap", width: "100%"}}>
+                                    <View style={{ flexDirection: "row", flexWrap: "wrap", width: "100%" }}>
                                         <Text style={{ fontFamily: "Ubuntu-Regular", color: "#9B9B9B", width: "50%", marginTop: 10 }}>Preço Compra: {item.precoCompra}</Text>
-                                        <Text style={{marginTop: 7 ,width: "50%"}}>
-                                            
+                                        <Text style={{ marginTop: 7, width: "50%" }}>
+
                                         </Text>
                                     </View>
                                     <View style={{ flexDirection: "row", flexWrap: "wrap", width: "100%" }}>
                                         <Text style={{ fontFamily: "Ubuntu-Regular", color: "#9B9B9B", width: "50%", marginTop: 10 }}>Preço Venda: {item.precoVenda}</Text>
                                     </View>
-                                    <View style={{position: "absolute" ,right:0,top:38}}>
-                                        <Text style={{marginRight:20,fontFamily: "Ubuntu-Regular", backgroundColor:"#0079FF",color: "#fff",paddingTop:8,paddingBottom:8,paddingLeft:18,paddingRight:18}} onPress={() => navigation.navigate("DetalheMercadoria",{id:item.id})}>Ver</Text>
+                                    <View style={{ position: "absolute", right: 0, top: 38 }}>
+                                        <Text style={{ marginRight: 20, fontFamily: "Ubuntu-Regular", backgroundColor: "#0079FF", color: "#fff", paddingTop: 8, paddingBottom: 8, paddingLeft: 18, paddingRight: 18 }} onPress={() => navigation.navigate("DetalheMercadoria", { id: item.id })}>Ver</Text>
                                     </View>
 
                                 </View>

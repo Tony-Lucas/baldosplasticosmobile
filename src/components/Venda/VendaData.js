@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { SafeAreaView, Text, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import SyncStorage from 'sync-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage"
 import { formataData } from './Services';
 import Svg, { G, Circle, Path } from "react-native-svg"
 import { ScrollView } from 'react-native-gesture-handler';
@@ -12,11 +12,15 @@ export default function VendaData({ navigation, route }) {
 
     useFocusEffect(
         React.useCallback(() => {
-            fetch(`https://baldosplasticosapi.herokuapp.com/notas/${route.params.dataInicial}/${route.params.dataFinal}/${SyncStorage.get("token")}`).then((result) => {
-                return result.json()
-            }).then((result) => {
-                setNotas(result.notas)
-            })
+            const getNotas = async () => {
+                console.log(route.params.dataInicial)
+                fetch(`https://baldosplasticosapi.herokuapp.com/notas/${route.params.dataInicial}/${route.params.dataFinal}/${await AsyncStorage.getItem("token")}`).then((result) => {
+                    return result.json()
+                }).then((result) => {
+                    setNotas(result.notas)
+                })
+            }
+            getNotas()
             return () => {
                 setNotas([])
             };
@@ -24,7 +28,7 @@ export default function VendaData({ navigation, route }) {
     );
 
     const detalheVenda = async (id) => {
-        const result = await fetch(`https://baldosplasticosapi.herokuapp.com/notas/${id}/${SyncStorage.get("token")}`);
+        const result = await fetch(`https://baldosplasticosapi.herokuapp.com/notas/${id}/${await AsyncStorage.getItem("token")}`);
         const json = await result.json();
         if (json.success) {
             navigation.navigate("DetalheVenda", { cliente: json.notas.cliente, total: json.notas.total, id: id })

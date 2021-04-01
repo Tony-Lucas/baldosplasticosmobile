@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { SafeAreaView, Text, TextInput, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import Svg, { Path } from "react-native-svg"
-import SyncStorage from 'sync-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import InformacoesMercadoria from './components/InfomacoesMercadoria';
 import { useFocusEffect } from '@react-navigation/native';
 export default function CarrinhoVenda({ navigation, route }) {
@@ -55,7 +55,7 @@ export default function CarrinhoVenda({ navigation, route }) {
     const procuraMercadoria = async (nome) => {
         setTextoBusca(nome)
         if (nome.length > 2) {
-            const result = await fetch(`https://baldosplasticosapi.herokuapp.com/mercadoria/busca/${nome}/${SyncStorage.get("token")}`)
+            const result = await fetch(`https://baldosplasticosapi.herokuapp.com/mercadoria/busca/${nome}/${await AsyncStorage.getItem("token")}`)
             const json = await result.json()
             setMercadoriasBusca(json.mercadorias)
             setShowMercadorias(true)
@@ -67,7 +67,7 @@ export default function CarrinhoVenda({ navigation, route }) {
     }
 
     const abreShowInfoMercadoria = async (id) => {
-        const result = await fetch(`https://baldosplasticosapi.herokuapp.com/mercadoria/${id}/${SyncStorage.get("token")}`)
+        const result = await fetch(`https://baldosplasticosapi.herokuapp.com/mercadoria/${id}/${await AsyncStorage.getItem("token")}`)
         const json = await result.json()
         setInfoMercadoria(json.mercadoria);
         setshowInfoMercadoria(true)
@@ -226,7 +226,7 @@ export default function CarrinhoVenda({ navigation, route }) {
 
                 )}
                 <View style={{ flexDirection: "row", justifyContent: "flex-end", width: "80%" }}>
-                    <Text style={{ paddingRight: 15, fontFamily: "Ubuntu-Bold", marginTop: 15, fontSize: 16 }}>Total: {total}</Text>
+                    <Text style={{ paddingRight: 15, fontFamily: "Ubuntu-Bold", marginTop: 15, fontSize: 16 }}>Total: {total ? total.replace(".",",") : null}</Text>
                 </View>
                 <View style={{ flexDirection: "row", justifyContent: "flex-end", width: "80%", marginTop: 20 }}>
                     <Text onPress={() => navigation.navigate("NomeClienteVenda")} style={{ fontFamily: "Ubuntu-regular", backgroundColor: "#FB212F", paddingBottom: 8, paddingTop: 8, paddingLeft: 19, paddingRight: 19, borderRadius: 5, marginRight: 15, color: "#fff" }}>Voltar</Text>

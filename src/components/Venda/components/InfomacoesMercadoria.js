@@ -20,11 +20,11 @@ export default function InformacoesMercadoria(props) {
 
                 </View>
                 <View style={{ width: "100%", flexDirection: "row", flexWrap: "wrap", justifyContent: "flex-end", marginTop: 25 }}>
-                    <Text style={{ fontFamily: "Ubuntu-Bold" }}>Total: {desconto && quantidade && (
-                        <Text>{desconto * quantidade}</Text>
+                    <Text style={{ fontFamily: "Ubuntu-Bold",fontSize:17 }}>Total: {desconto && quantidade && (
+                        <Text style={{fontSize:17}}>{(parseFloat(desconto.replace(",",".")) * quantidade).toFixed(2)}</Text>
                     )}
                         {!desconto && quantidade && (
-                            <Text>{(parseFloat(props.mercadoria.precoVenda) * parseInt(quantidade)).toFixed(2)}</Text>
+                            <Text style={{fontSize:17}}>{(parseFloat(props.mercadoria.precoVenda) * parseInt(quantidade)).toFixed(2)}</Text>
                         )}
                     </Text>
                 </View>

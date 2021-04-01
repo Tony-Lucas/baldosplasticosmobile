@@ -5,7 +5,7 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import Icon from 'react-native-vector-icons/Feather';
 import { TextInput } from 'react-native-gesture-handler';
 import ConfirmaAcao from '../../utils/ConfirmaAcao';
-import SyncStorage from 'sync-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage"
 
 export default function FinalizarVenda({ navigation, route }) {
 
@@ -19,23 +19,26 @@ export default function FinalizarVenda({ navigation, route }) {
         fetch(`https://baldosplasticosapi.herokuapp.com/notas`, {
             method: 'post',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ total: subtotal, cliente: route.params.cliente, desconto: String(descontoV), formaPagamento: String(formaPagamentoV), token: SyncStorage.get("token") })
+            body: JSON.stringify({ total: subtotal, cliente: route.params.cliente, descontoPorcentagem: String(descontoV), metodoPagamento: String(formaPagamentoV), token: await AsyncStorage.getItem("token") })
         }).then(resultNota => {
             return resultNota.json();
-        }).then(async(resultNota) => {
+        }).then(async (resultNota) => {
+            console.log(resultNota)
             for (let i = 0; i < route.params.carrinho.length; i++) {
-                
-                const resultMercadoria = await fetch(`https://baldosplasticosapi.herokuapp.com/mercadoria/${route.params.carrinho[i].id}/${SyncStorage.get("token")}`)
+
+                const resultMercadoria = await fetch(`https://baldosplasticosapi.herokuapp.com/mercadoria/${route.params.carrinho[i].id}/${await AsyncStorage.getItem("token")}`)
                 const jsonMercadoria = await resultMercadoria.json()
-                const resultVenda = await fetch(`https://baldosplasticosapi.herokuapp.com/vendas`,{
-                    method:"POST",
-                    headers:{ 'Content-Type': 'application/json'},
-                    body: JSON.stringify({id_mercadoria:jsonMercadoria.mercadoria.id,quantidade:route.params.carrinho[i].quantidade,notaId:resultNota.id,desconto:route.params.carrinho[i].desconto,precoDia:jsonMercadoria.mercadoria.precoVenda,token:SyncStorage.get("token")})
+                const resultVenda = await fetch(`https://baldosplasticosapi.herokuapp.com/vendas`, {
+                    method: "POST",
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id_mercadoria: jsonMercadoria.mercadoria.id, quantidade: route.params.carrinho[i].quantidade, notaId: resultNota.id, desconto: route.params.carrinho[i].desconto, precoDia: jsonMercadoria.mercadoria.precoVenda, token: await AsyncStorage.getItem("token") })
                 })
 
 
             }
+
             navigation.navigate("Venda")
+
         })
 
     }
@@ -48,7 +51,27 @@ export default function FinalizarVenda({ navigation, route }) {
 
     const calculaDesconto = (text) => {
         setDescontoV(text)
-        setSubtotal((route.params.subtotal - ((parseInt(text) / 100) * route.params.subtotal)).toFixed(2))
+        if (text && text != "0") {
+            setSubtotal((route.params.subtotal - ((parseInt(text) / 100) * route.params.subtotal)).toFixed(2))
+        } else if (!text) {
+            setSubtotal(parseFloat(route.params.subtotal))
+        }
+    }
+
+    const renderTotal = () => {
+        if (descontoV != "0" && descontoV) {
+            return (
+                <View width="100%">
+                    <Text style={{ width: "100%", textAlign: "right", fontFamily: "Ubuntu-Bold" }}>Desconto : {descontoV} %</Text>
+                    <Text style={{ width: "100%", textAlign: "right", marginTop: 12, fontFamily: "Ubuntu-Bold", textDecorationLine: 'line-through', textDecorationStyle: 'solid' }}>Total : {route.params.subtotal}</Text>
+                    <Text style={{ width: "100%", textAlign: "right", marginTop: 12, fontFamily: "Ubuntu-Bold", fontSize: 17 }}>Subtotal: {(route.params.subtotal - ((parseInt(descontoV) / 100) * route.params.subtotal)).toFixed(2)}</Text>
+                </View>
+            )
+        }else{
+            return(
+                <Text style={{ width: "100%", textAlign: "right", marginTop: 12, fontFamily: "Ubuntu-Bold", fontSize: 17 }}>Subtotal: {route.params.subtotal.toString().replace(".",",")}</Text>
+            )
+        }
     }
 
     return (
@@ -101,20 +124,7 @@ export default function FinalizarVenda({ navigation, route }) {
                     </Text>
                 </View>
                 <View style={{ width: "90%", flexDirection: "row", flexWrap: "wrap", marginTop: 10 }}>
-                    {descontoV != '' && descontoV != "0" && (
-                        <View width="100%">
-                            <Text style={{ width: "100%", textAlign: "right", fontFamily: "Ubuntu-Bold" }}>Desconto : {descontoV} %</Text>
-                            <Text style={{ width: "100%", textAlign: "right", marginTop: 12, fontFamily: "Ubuntu-Bold", textDecorationLine: 'line-through', textDecorationStyle: 'solid' }}>Total : {route.params.subtotal}</Text>
-                            <Text style={{ width: "100%", textAlign: "right", marginTop: 12, fontFamily: "Ubuntu-Bold", fontSize: 17 }}>Subtotal: {(route.params.subtotal - ((parseInt(descontoV) / 100) * route.params.subtotal)).toFixed(2)}</Text>
-                        </View>
-                    )}
-                    {descontoV === '' || descontoV === "0" && (
-                        <View width="100%">
-                            <Text style={{ width: "100%", textAlign: "right", marginTop: 12, fontFamily: "Ubuntu-Bold", fontSize: 17 }}>Subtotal: {route.params.subtotal}</Text>
-                        </View>
-                    )}
-
-
+                    {renderTotal()}
                 </View>
 
                 <View style={{ width: "90%", marginTop: 30, flexDirection: "row", flexWrap: "wrap", justifyContent: "flex-end" }}>
@@ -124,7 +134,7 @@ export default function FinalizarVenda({ navigation, route }) {
 
             </SafeAreaView>
             {showConfirma && (
-                <ConfirmaAcao acaoMethod={finalizaNota} cancelaAcao={cancelaAcao} parametros={{id:null}}/>
+                <ConfirmaAcao acaoMethod={finalizaNota} cancelaAcao={cancelaAcao} parametros={{ id: null }} />
             )}
         </React.Fragment >
     )

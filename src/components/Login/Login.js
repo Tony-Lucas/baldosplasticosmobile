@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
 import Svg, { Path } from "react-native-svg"
-import SyncStorage from 'sync-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage"
 
 export default function Login({ navigation }) {
 
@@ -17,7 +17,7 @@ export default function Login({ navigation }) {
         });
         const json = await result.json();
         if (json.success) {
-            SyncStorage.set("token", json.token)
+            AsyncStorage.setItem("token", json.token)
             navigation.navigate("LogadoNavigation")
         }
     }
